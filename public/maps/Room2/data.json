@@ -1,0 +1,229 @@
+{
+	"identifier": "Room2",
+	"uniqueIdentifer": "5f2c5e00-9b00-11ef-9c4b-3b08ed5cff49",
+	"x": 0,
+	"y": 16,
+	"width": 256,
+	"height": 128,
+	"bgColor": "#696A79",
+	"neighbourLevels": [
+		{
+			"levelIid": "428bece0-9b00-11ef-9f48-8d9e741af7b6",
+			"dir": "s"
+		}
+	],
+	"customFields" : {},
+	"layers": [
+		"Tiles2.png",
+		"Tiles.png"
+	],
+	"entities": {
+		"Enemy": [
+			{
+				"id": "Enemy",
+				"iid": "de255520-9b00-11ef-a5a8-cf483a96ea64",
+				"layer": "Collision",
+				"x": 32,
+				"y": 80,
+				"width": 16,
+				"height": 16,
+				"color": 14871210,
+				"customFields": {
+					"enemyId": "dummy"
+				}
+			},
+			{
+				"id": "Enemy",
+				"iid": "dec03590-9b00-11ef-a5a8-d36d0f180d87",
+				"layer": "Collision",
+				"x": 80,
+				"y": 32,
+				"width": 16,
+				"height": 16,
+				"color": 14871210,
+				"customFields": {
+					"enemyId": "dummy"
+				}
+			},
+			{
+				"id": "Enemy",
+				"iid": "e73bb000-9b00-11ef-a5a8-0335d715bc8e",
+				"layer": "Collision",
+				"x": 208,
+				"y": 32,
+				"width": 16,
+				"height": 16,
+				"color": 14871210,
+				"customFields": {
+					"enemyId": "dummy"
+				}
+			},
+			{
+				"id": "Enemy",
+				"iid": "e8647890-9b00-11ef-a5a8-530421da97ea",
+				"layer": "Collision",
+				"x": 176,
+				"y": 16,
+				"width": 16,
+				"height": 16,
+				"color": 14871210,
+				"customFields": {
+					"enemyId": "dummy"
+				}
+			}
+		],
+		"RoomLeavePoint": [
+			{
+				"id": "RoomLeavePoint",
+				"iid": "42f4faf0-9b00-11ef-a5a8-9fd1dd6ca0dc",
+				"layer": "Collision",
+				"x": 64,
+				"y": 0,
+				"width": 16,
+				"height": 16,
+				"color": 16217634,
+				"customFields": {
+					"direction": "n"
+				}
+			},
+			{
+				"id": "RoomLeavePoint",
+				"iid": "43f246b0-9b00-11ef-a5a8-1b84cb67e864",
+				"layer": "Collision",
+				"x": 176,
+				"y": 0,
+				"width": 16,
+				"height": 16,
+				"color": 16217634,
+				"customFields": {
+					"direction": "n"
+				}
+			}
+		],
+		"RoomEntryPoint": [
+			{
+				"id": "RoomEntryPoint",
+				"iid": "4a7ef400-9b00-11ef-a5a8-9b729fb75940",
+				"layer": "Collision",
+				"x": 160,
+				"y": 112,
+				"width": 16,
+				"height": 16,
+				"color": 12470831,
+				"customFields" : {}
+			}
+		],
+		"AreaZone": [
+			{
+				"id": "AreaZone",
+				"iid": "5a507bb0-9b00-11ef-a5a8-774c86af1f41",
+				"layer": "Collision",
+				"x": 0,
+				"y": 0,
+				"width": 16,
+				"height": 128,
+				"color": 3108798,
+				"customFields" : {}
+			},
+			{
+				"id": "AreaZone",
+				"iid": "5b883860-9b00-11ef-a5a8-2b8f339ff982",
+				"layer": "Collision",
+				"x": 16,
+				"y": 112,
+				"width": 142,
+				"height": 16,
+				"color": 3108798,
+				"customFields" : {}
+			},
+			{
+				"id": "AreaZone",
+				"iid": "5c900b70-9b00-11ef-a5a8-cfeb3840fa56",
+				"layer": "Collision",
+				"x": 178,
+				"y": 112,
+				"width": 78,
+				"height": 16,
+				"color": 3108798,
+				"customFields" : {}
+			},
+			{
+				"id": "AreaZone",
+				"iid": "5dc249e0-9b00-11ef-a5a8-69ef68a2de6f",
+				"layer": "Collision",
+				"x": 240,
+				"y": 0,
+				"width": 16,
+				"height": 112,
+				"color": 3108798,
+				"customFields" : {}
+			},
+			{
+				"id": "AreaZone",
+				"iid": "5f277f30-9b00-11ef-a5a8-87b8651507fe",
+				"layer": "Collision",
+				"x": 194,
+				"y": 0,
+				"width": 46,
+				"height": 16,
+				"color": 3108798,
+				"customFields" : {}
+			},
+			{
+				"id": "AreaZone",
+				"iid": "60657d70-9b00-11ef-a5a8-5b75346180df",
+				"layer": "Collision",
+				"x": 82,
+				"y": 0,
+				"width": 92,
+				"height": 16,
+				"color": 3108798,
+				"customFields" : {}
+			},
+			{
+				"id": "AreaZone",
+				"iid": "61341810-9b00-11ef-a5a8-ef7c0968e4e4",
+				"layer": "Collision",
+				"x": 16,
+				"y": 0,
+				"width": 46,
+				"height": 16,
+				"color": 3108798,
+				"customFields" : {}
+			},
+			{
+				"id": "AreaZone",
+				"iid": "64ce2ec0-9b00-11ef-a5a8-6dd8acfe19d5",
+				"layer": "Collision",
+				"x": 48,
+				"y": 48,
+				"width": 32,
+				"height": 32,
+				"color": 3108798,
+				"customFields" : {}
+			},
+			{
+				"id": "AreaZone",
+				"iid": "65bf4580-9b00-11ef-a5a8-df7bcdc387a2",
+				"layer": "Collision",
+				"x": 112,
+				"y": 48,
+				"width": 32,
+				"height": 32,
+				"color": 3108798,
+				"customFields" : {}
+			},
+			{
+				"id": "AreaZone",
+				"iid": "668a36a0-9b00-11ef-a5a8-9560403169db",
+				"layer": "Collision",
+				"x": 176,
+				"y": 48,
+				"width": 32,
+				"height": 32,
+				"color": 3108798,
+				"customFields" : {}
+			}
+		]
+	}
+}

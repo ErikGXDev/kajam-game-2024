@@ -1,13 +1,14 @@
-import { GameObj, Vec2 } from "kaplay";
+import { GameObj, Grid, NavMesh, Vec2 } from "kaplay";
 import { k } from "./kaplay";
-import { addEnemy } from "./objects/enemies/enemy";
+import { addEnemy, addEnemySpawnPoint } from "./objects/enemies/enemy";
 
 export async function loadMap(mapid: string) {
   k.loadJSON(mapid + "_data", `maps/${mapid}/data.json`);
+  k.loadJSON(mapid + "_nav", `maps/${mapid}/nav.json`);
   k.loadSprite(mapid + "_map", `maps/${mapid}/map.png`);
 }
 
-const scale = 3;
+const scale = 2;
 
 export function getMapData(mapid: string) {
   const mapAsset = k.getAsset(mapid + "_data");
@@ -19,8 +20,44 @@ export function getMapData(mapid: string) {
   return mapAsset.data;
 }
 
+export function addNavLevel(mapid: string) {
+  const navAsset = k.getAsset(mapid + "_nav");
+
+  if (!navAsset?.loaded || !navAsset) {
+    throw new Error("Nav data not loaded");
+  }
+
+  const navData = navAsset.data;
+
+  const navMesh = new k.NavMesh();
+
+  // NavData is a 2D array of 0s and 1s
+  // 0 = not walkable
+  // 1 = walkable
+
+  navData.forEach((row: number[], y: number) => {
+    row.forEach((cell: number, x: number) => {
+      if (cell === 1) {
+        navMesh.addRect(
+          k.vec2(x, y).scale(16).scale(scale),
+          k.vec2(16 * scale)
+        );
+      }
+    });
+  });
+
+  return navMesh;
+}
+
+let currentMap: { mapData: any; mapObj: GameObj; navMesh: NavMesh } | null =
+  null;
+
+export function getCurrentMap() {
+  return currentMap;
+}
+
 export function instantiateMap(mapid: string, pos: Vec2) {
-  const map = k.add([
+  const mapObj = k.add([
     k.sprite(mapid + "_map"),
     k.pos(pos),
     k.scale(scale),
@@ -29,10 +66,11 @@ export function instantiateMap(mapid: string, pos: Vec2) {
   ]);
 
   const mapData = getMapData(mapid);
-  const { entities } = mapData;
 
-  entities["AreaZone"].forEach((zone: any) => {
-    map.add([
+  const navMesh = addNavLevel(mapid);
+
+  getEntities(mapData, "AreaZone").forEach((zone: any) => {
+    mapObj.add([
       k.rect(zone.width, zone.height),
       k.pos(zone.x, zone.y),
       k.anchor("topleft"),
@@ -43,85 +81,92 @@ export function instantiateMap(mapid: string, pos: Vec2) {
     ]);
   });
 
-  entities["Enemy"].forEach((enemy: any) => {
+  getEntities(mapData, "Enemy").forEach((enemy: any) => {
     addEnemy(
       enemy.customFields.enemyId,
-      k.vec2(enemy.x, enemy.y).scale(scale).add(map.pos)
+      k.vec2(enemy.x, enemy.y).scale(scale).add(mapObj.pos),
+      navMesh
     );
   });
 
-  entities["RoomLeavePoint"].forEach((point: any) => {
-    const leavePoint = map.add([
-      k.rect(point.width, point.height),
-      k.pos(point.x, point.y),
-      k.anchor("topleft"),
-      k.opacity(0),
-      k.area(),
-      "roomLeavePoint",
-    ]);
-
-    const direction = point.customFields.direction;
-
-    const worldPos = leavePoint.pos.scale(3).add(map.pos);
-
-    k.add([k.circle(8), k.color(255, 0, 0), k.pos(worldPos)]);
-
-    leavePoint.onCollide("mark", () => {
-      connectMap(map, worldPos, direction);
-    });
+  getEntities(mapData, "EnemySpawnPoint").forEach((spawnPoint: any) => {
+    addEnemySpawnPoint(
+      k.vec2(spawnPoint.x, spawnPoint.y).scale(scale).add(mapObj.pos),
+      spawnPoint.customFields.direction
+    );
   });
 
-  console.log(map.pos);
+  console.log(mapObj.pos);
 
-  k.camPos(
-    map.pos.add(
-      k.vec2((mapData.width * scale) / 2, (mapData.height * scale) / 2)
-    )
+  const mapCenter = mapObj.pos.add(
+    k.vec2((mapData.width * scale) / 2, (mapData.height * scale) / 2)
   );
 
-  return [mapData, map];
+  k.tween(
+    k.camPos(),
+    mapCenter,
+    0.5,
+    (p) => k.camPos(p),
+    k.easings.easeInOutCubic
+  );
+
+  // zoom in so the map touches the screen borders
+  const w = k.width();
+  const h = k.height();
+
+  const mapW = mapData.width * scale;
+  const mapH = mapData.height * scale;
+
+  const zoomProp = Math.max(w / mapW, h / mapH);
+
+  const zoom = zoomProp / 1.5;
+
+  k.camScale(1);
+
+  k.tween(
+    k.camScale(),
+    k.vec2(zoom),
+    0.5,
+    (p) => k.camScale(p),
+    k.easings.easeInOutCubic
+  );
+
+  let map = { mapData, mapObj, navMesh };
+
+  currentMap = map;
+
+  return map;
 }
 
-export function connectMap(
-  oldMap: GameObj,
-  leavePointPos: Vec2,
-  direction: string
-) {
-  console.log(
-    `Connecting to map at ${leavePointPos} in direction ${direction}`
-  );
-
+export function transitionMap(direction: string) {
   let directionVec = k.vec2(0, 0);
   switch (direction) {
-    case "n":
+    case "up":
       directionVec = k.vec2(0, -1);
       break;
-    case "s":
+    case "down":
       directionVec = k.vec2(0, 1);
       break;
-    case "e":
+    case "right":
       directionVec = k.vec2(1, 0);
       break;
-    case "w":
+    case "left":
       directionVec = k.vec2(-1, 0);
       break;
   }
 
   const newMapId = "Room2";
 
-  const screenCenter = k.camPos().add(k.width() / 2, k.height() / 2);
-
-  const offscreenPos = screenCenter.add(directionVec.scale(1000));
-  const offscreenPos2 = screenCenter.sub(directionVec.scale(1000));
-
-  k.tween(oldMap.pos, offscreenPos2, 2, (p) => (oldMap.pos = p));
-
-  const [mapData, newMap] = instantiateMap(newMapId, screenCenter);
-
-  k.tween(newMap.pos, screenCenter, 2, (p) => (newMap.pos = p));
+  instantiateMap(newMapId, directionVec.scale(1000));
 }
 
 export function getEntities(mapData: any, type: string) {
+  if (!mapData.entities[type]) {
+    return [];
+  }
+
+  console.log(`Got ${type} entities`, mapData.entities[type]);
+
   return mapData.entities[type];
 }
 

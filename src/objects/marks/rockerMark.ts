@@ -17,7 +17,7 @@ export function addRockerMark(mark: MarkObj) {
     bpm: 140.036,
   });
 
-  let canAttack = true;
+  let canPrimaryAttack = true;
   let canSecondaryAttack = true;
 
   mark.onKeyPress("z", async () => {
@@ -52,19 +52,25 @@ export function addRockerMark(mark: MarkObj) {
 
     const angle = mousePos.angle(mark.pos);
 
-    if (m == "left" && canAttack) {
-      canAttack = false;
+    if (m == "left" && canPrimaryAttack) {
+      // Primary attack
+
+      canPrimaryAttack = false;
 
       waitBeat(1).then(() => {
-        canAttack = true;
+        canPrimaryAttack = true;
       });
 
       const angle = mousePos.angle(mark.pos);
 
-      [-30, 0, 30].forEach((offset) => {
-        spawnNoteProjectile(angle + offset, mark.pos, 64, 300);
+      const coneAngle = 20;
+
+      [-coneAngle, 0, coneAngle].forEach((offset) => {
+        spawnNoteProjectile(angle + offset, mark.pos, 32, 300);
       });
     } else if (m == "right" && canSecondaryAttack) {
+      // Secondary attack
+
       canSecondaryAttack = false;
 
       waitBeat(8).then(() => {
@@ -112,7 +118,7 @@ async function spawnNoteProjectile(
 
   await k.tween(
     note.scale,
-    k.vec2(2),
+    k.vec2(1.5),
     0.3,
     (p) => (note.scale = p),
     k.easings.easeOutElastic
@@ -132,7 +138,7 @@ async function spawnNoteProjectile(
 async function spawnSpeakerProjectile(angle: number, pos: Vec2) {
   function notePulse() {
     k.tween(
-      speaker.scale.add(k.vec2(0.5)),
+      speaker.scale.add(k.vec2(0.3)),
       speaker.scale,
       1,
       (p) => (speaker.scale = p),
@@ -152,7 +158,7 @@ async function spawnSpeakerProjectile(angle: number, pos: Vec2) {
 
   const speaker = k.add([
     k.sprite("speaker_note"),
-    k.pos(vec.scale(60).add(pos)),
+    k.pos(vec.scale(32).add(pos)),
     k.scale(0.5),
     k.anchor("center"),
     k.body(),
@@ -163,7 +169,7 @@ async function spawnSpeakerProjectile(angle: number, pos: Vec2) {
 
   k.tween(
     speaker.scale,
-    k.vec2(2),
+    k.vec2(1.5),
     0.3,
     (p) => (speaker.scale = p),
     k.easings.easeOutExpo

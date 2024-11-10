@@ -3,6 +3,7 @@ import {
   AreaComp,
   GameObj,
   HealthComp,
+  NavMesh,
   PosComp,
   ScaleComp,
   SpriteComp,
@@ -12,6 +13,7 @@ import { k } from "../../kaplay";
 import { addDummyEnemy } from "./dummyEnemy";
 import { getCurrentAudioStage, playAudioStage } from "../../audio";
 import { triggerEvent } from "../../events";
+import { directionToVec, shakeObject } from "../../util";
 
 interface EnemyDataItem {
   add: (enemy: EnemyObj) => void;
@@ -30,18 +32,27 @@ const enemyData = {
   },
 };
 
-export function addEnemy(enemyKey: keyof typeof enemyData, pos: Vec2) {
+export function addEnemy(
+  enemyKey: keyof typeof enemyData,
+  pos: Vec2,
+  navMesh?: NavMesh
+) {
   const enemyConfig = enemyData[enemyKey];
   const enemy = k.add([
     k.sprite(enemyConfig.sprite),
-    k.scale(3),
+    k.scale(2),
     k.pos(pos),
-    k.area(),
+    k.area({ collisionIgnore: ["areaZone"] }),
     k.health(enemyConfig.health),
     k.anchor("center"),
-    k.state("idle", ["fighting"]),
+    k.state("spawning", ["idle", "fighting", "spawning"]),
+
     "enemy",
   ]);
+
+  enemy.onStateEnter("idle", () => {
+    enemy.collisionIgnore = [];
+  });
 
   enemy.onCollide("projectile", (projectile) => {
     projectile.destroy();
@@ -71,3 +82,38 @@ export function addEnemy(enemyKey: keyof typeof enemyData, pos: Vec2) {
 export type EnemyObj = GameObj<
   SpriteComp | PosComp | ScaleComp | AnchorComp | AreaComp | HealthComp
 >;
+
+export function addEnemySpawnPoint(pos: Vec2, direction: string) {
+  const directionVec = directionToVec(direction);
+
+  const spawnPoint = k.add([
+    k.rect(16, 16),
+    k.pos(pos),
+    k.anchor("center"),
+    k.area(),
+    "enemySpawnPoint",
+    {
+      directionVec,
+    },
+  ]);
+
+  spawnEnemy(spawnPoint.pos, spawnPoint.directionVec);
+}
+
+async function spawnEnemy(spawnPos: Vec2, directionVec: Vec2) {
+  const enemy = addEnemy("dummy", spawnPos.add(directionVec.scale(-8)));
+
+  const shake = shakeObject(enemy);
+
+  await k.wait(1.5);
+
+  shake.stop();
+
+  k.tween(
+    enemy.pos,
+    enemy.pos.add(directionVec.scale(48)),
+    1,
+    (p) => (enemy.pos = p),
+    k.easings.easeOutExpo
+  );
+}

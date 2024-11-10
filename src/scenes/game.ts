@@ -40,11 +40,11 @@ k.scene("game", () => {
     fpsText.text = `FPS: ${k.debug.fps()}`;
   });
 
-  const [mapData, map] = instantiateMap("Room1", k.vec2(0));
+  const { mapData, mapObj } = instantiateMap("Room1", k.vec2(0));
 
   const spawnPoint = getSpawnPoint(mapData);
 
-  mark.pos = spawnPoint.add(map.pos);
+  mark.pos = spawnPoint.add(mapObj.pos);
 
   console.log(spawnPoint);
 });

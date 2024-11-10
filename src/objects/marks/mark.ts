@@ -16,7 +16,7 @@ import { worldMousePos } from "../../util";
 export function addMark(rebirth: Rebirth, pos: Vec2) {
   const mark = k.add([
     k.sprite(rebirth.sprite),
-    k.scale(3),
+    k.scale(2),
     k.pos(pos),
     k.anchor("center"),
     k.area(),
@@ -38,7 +38,7 @@ export function addMark(rebirth: Rebirth, pos: Vec2) {
   if (rebirth.twoHanded) {
   }
 
-  const moveSpeed = 150;
+  const moveSpeed = 100;
 
   mark.onKeyDown("a", () => {
     mark.move(-moveSpeed, 0);

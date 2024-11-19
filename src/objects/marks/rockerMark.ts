@@ -1,17 +1,15 @@
 import { Vec2 } from "kaplay";
 import { k } from "../../kaplay";
-import { beatTime, playAudioStage, playMusic, waitBeat } from "../../audio";
+import { playMusic, waitBeat } from "../../audio";
 import { MarkObj } from "./mark";
 import { worldMousePos } from "../../util";
 
 export function addRockerMark(mark: MarkObj) {
   playMusic({
     stages: {
-      stealth_1: "rock_stealth_1",
-      stealth_2: "rock_stealth_2",
-      fight_1: "rock_fight_1",
-      fight_2: "rock_fight_2",
-      fight_end: "rock_fight_end",
+      stealth_1: "rocker_mark_stealth_1",
+      fight_1: "rocker_mark_fight_1",
+      fight_end: "rocker_mark_fight_end",
     },
     defaultStage: "stealth_1",
     bpm: 140.036,
@@ -19,31 +17,6 @@ export function addRockerMark(mark: MarkObj) {
 
   let canPrimaryAttack = true;
   let canSecondaryAttack = true;
-
-  mark.onKeyPress("z", async () => {
-    if (mark.specialMeter >= 100) {
-      mark.specialMeter = 0;
-      await playAudioStage("fight_end", { loop: false });
-      playAudioStage("stealth_1");
-    } else {
-      mark.specialMeter = 100;
-      playAudioStage("fight_1", { keepTime: true });
-    }
-  });
-
-  mark.onUpdate(() => {
-    if (mark.specialMeter >= 100 && !mark.hasSpecial) {
-      mark.hasSpecial = true;
-    }
-  });
-
-  let isAttacking = false;
-
-  mark.onMouseRelease((m) => {
-    if (m == "left") {
-      isAttacking = false;
-    }
-  });
 
   mark.onMouseDown(async (m) => {
     // attack
@@ -66,7 +39,7 @@ export function addRockerMark(mark: MarkObj) {
       const coneAngle = 20;
 
       [-coneAngle, 0, coneAngle].forEach((offset) => {
-        spawnNoteProjectile(angle + offset, mark.pos, 32, 300);
+        spawnNoteProjectile(mark.pos, angle + offset, 32, 300);
       });
     } else if (m == "right" && canSecondaryAttack) {
       // Secondary attack
@@ -81,14 +54,14 @@ export function addRockerMark(mark: MarkObj) {
         volume: 0.25,
       });
 
-      spawnSpeakerProjectile(angle, mark.pos);
+      spawnSpeakerProjectile(mark.pos, angle);
     }
   });
 }
 
 async function spawnNoteProjectile(
-  angle: number,
   pos: Vec2,
+  angle: number,
   offset: number = 0,
   speed: number
 ) {
@@ -108,7 +81,7 @@ async function spawnNoteProjectile(
     "projectile",
   ]);
 
-  note.onCollide("areaZone", () => {
+  note.onCollide("solid", () => {
     note.destroy();
   });
 
@@ -135,7 +108,7 @@ async function spawnNoteProjectile(
   note.destroy();
 }
 
-async function spawnSpeakerProjectile(angle: number, pos: Vec2) {
+async function spawnSpeakerProjectile(pos: Vec2, angle: number) {
   function notePulse() {
     k.tween(
       speaker.scale.add(k.vec2(0.3)),
@@ -145,12 +118,14 @@ async function spawnSpeakerProjectile(angle: number, pos: Vec2) {
       k.easings.easeInSine
     );
 
+    k.shake(0.5);
+
     const noteCount = 8;
 
     new Array(noteCount).fill(null).forEach(async (_, i) => {
       const angleOffset = (i * 360) / noteCount;
 
-      spawnNoteProjectile(angle + angleOffset, speaker.pos, 0, 200);
+      spawnNoteProjectile(speaker.pos, angle + angleOffset, 0, 200);
     });
   }
 

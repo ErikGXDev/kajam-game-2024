@@ -37,7 +37,7 @@ export function loadAudioStage(stage: string, audioId: string) {
   musicState.currentSoundId = audioId;
 }
 
-export function stopAudioStages(exclude: string) {
+export function stopAudioStages(exclude?: string) {
   Object.keys(musicState.stageAudios).forEach((stage: string) => {
     if (stage !== exclude) {
       const audio = musicState.stageAudios[stage];
@@ -94,6 +94,7 @@ export async function playAudioStage(
 }
 
 export function playMusic(musicData: MusicData) {
+  stopAudioStages();
   for (const stage of Object.keys(musicData.stages)) {
     loadAudioStage(stage, musicData.stages[stage]);
   }

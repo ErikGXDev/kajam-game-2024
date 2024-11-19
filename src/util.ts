@@ -39,3 +39,24 @@ export function shakeObject(obj: GameObj) {
     },
   };
 }
+
+export function lineOfSight(
+  from: GameObj,
+  to: GameObj,
+  targetTag: string = "mark"
+) {
+  const angle = from.pos.angle(to.pos) + 180;
+
+  const directionVec = k.Vec2.fromAngle(angle);
+
+  const ray = k.raycast(from.pos, directionVec.scale(1000), [
+    "projectile",
+    "enemyProjectile",
+    "enemy",
+  ]);
+
+  if (ray && ray.object && ray.object.is(targetTag)) {
+    return true;
+  }
+  return false;
+}
